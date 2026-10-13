@@ -1,0 +1,19 @@
+[
+  {
+    "label": "Executar uNyan",
+    "command": "powershell.exe",
+    "args": [
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "./run.ps1"
+    ],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "shell": {
+      "program": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+    },
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  }
+]
