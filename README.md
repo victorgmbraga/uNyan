@@ -1,5 +1,7 @@
 # uNyan
 
+![uNyan demo showing Nyan Cat, its rainbow trail, and animated stars](img/unyan-demo.png)
+
 An interactive **Nyan Cat** demo built in Java with the
 [uImpala](https://github.com/matheuscscp/uImpala) engine. The cat follows the
 mouse through a space scene with an animated rainbow, stars, and looping music.
