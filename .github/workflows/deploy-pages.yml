@@ -61,6 +61,7 @@ jobs:
         run: |
           SITE=web/target/unyan-web
           mkdir -p "$SITE/img" "$SITE/sfx"
+          cp web/index.html "$SITE/index.html"
 
           for file in img/*; do
             case "$file" in
