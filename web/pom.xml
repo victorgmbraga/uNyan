@@ -1,0 +1,121 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.victorbraga</groupId>
+	<artifactId>uNyan-web</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<teavm.version>0.16.0</teavm.version>
+		<teavm.build.output>${project.build.directory}/unyan-web</teavm.build.output>
+	</properties>
+
+	<dependencies>
+		<!-- TeaVM Java class library subset used by the translated code. -->
+		<dependency>
+			<groupId>org.teavm</groupId>
+			<artifactId>teavm-classlib</artifactId>
+			<version>${teavm.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- TeaVM JS interop core (JSBody and JSO API annotations). -->
+		<dependency>
+			<groupId>org.teavm</groupId>
+			<artifactId>teavm-jso</artifactId>
+			<version>${teavm.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- TeaVM browser APIs: window, events, canvas 2D, media elements, XHR. -->
+		<dependency>
+			<groupId>org.teavm</groupId>
+			<artifactId>teavm-jso-apis</artifactId>
+			<version>${teavm.version}</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<sourceDirectory>src/main/java</sourceDirectory>
+
+		<plugins>
+			<!-- The desktop demo sources (project's src/) are reused here; the
+			     desktop Main.java (LWJGL entry point) is excluded. -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.6.1</version>
+				<executions>
+					<execution>
+						<id>add-shared-sources</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>../src</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				                <artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
+				<configuration>
+					<excludes>
+						<!-- Desktop-only entry point (LWJGL). -->
+						<exclude>com/victorbraga/unyan/Main.java</exclude>
+						<!-- Web copies apply the lambda-based Observation (java.lang.reflect
+						     is restricted in TeaVM wasm builds). -->
+						<exclude>com/victorbraga/unyan/Background.java</exclude>
+						<exclude>com/victorbraga/unyan/NyanCat.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<!-- Compiles the Java program to WebAssembly (GC types flavor). -->
+			<plugin>
+				<groupId>org.teavm</groupId>
+				<artifactId>teavm-maven-plugin</artifactId>
+				<version>${teavm.version}</version>
+				<executions>
+					<execution>
+						<id>web-wasm</id>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<mainClass>com.victorbraga.unyan.WebMain</mainClass>
+							<targetType>WEBASSEMBLY_GC</targetType>
+							<targetDirectory>${teavm.build.output}</targetDirectory>
+							<debugInformationGenerated>true</debugInformationGenerated>
+							<sourceMapsGenerated>true</sourceMapsGenerated>
+							<sourceFilesCopied>true</sourceFilesCopied>
+							<optimizationLevel>ADVANCED</optimizationLevel>
+						</configuration>
+					</execution>
+					<execution>
+						<id>web-wasm-runtime</id>
+						<goals>
+							<goal>copy-webassembly-gc-runtime</goal>
+						</goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<targetDirectory>${teavm.build.output}</targetDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -44,6 +44,69 @@ reopen the demo to reset its initial state.
 **Try it:** move the mouse to watch the rainbow, then press `Z` six times to
 reduce health from 10 to 4 and activate the red flashing effect.
 
+## Running in the Browser (WebAssembly)
+
+The same demo logic also runs as a **WebAssembly (GC) module** compiled with
+[TeaVM](https://teavm.org). Rendering uses the 2D canvas, input uses the DOM
+and the looping music uses an HTML audio element; no plugins are needed.
+
+The demo classes from `src/` are compiled unchanged by the web build, except
+for:
+
+- `Main` is replaced by `WebMain`: wasm builds provide the first scene
+  through a factory setting (`first_scene_factory`) and cannot instantiate
+  it by reflection.
+- `Background` and `NyanCat` have small copies under `web/src/` that connect
+  keyboard observations through a lambda
+  (`Observation(Object, EventMethod)`), because TeaVM restricts
+  `java.lang.reflect`.
+
+The engine side is a web flavor of uImpala: `web/src/main/java` contains a
+vendored, browser-compatible version of the engine core (no uOS
+middleware/networking) plus a web backend
+(`org.unbiquitous.uImpala.web.impl`) that implements the same engine API
+over the browser APIs.
+
+![uNyan wasm build: nyan cat, rainbow trail, stars and the space background rendered on the 2D canvas by the WebAssembly module](img/webasm-smoke.png)
+
+The animated scene running from the wasm module in a headless Chrome window.
+
+### From the Terminal
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\web\run.ps1
+```
+
+The script downloads a portable **JDK 17** and Maven 3.9.9 into
+`target/tools`, compiles the wasm module, assembles the playable files into
+`web/target/unyan-web/` (host page, `classes.wasm`, TeaVM runtime, `img/`,
+`sfx/` and the generated `asset-manifest.txt` used by the preloader),
+serves it at `http://localhost:8080/` and opens the browser.
+
+To compile and assemble without serving:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\web\run.ps1 -BuildOnly
+```
+
+Then serve `web/target/unyan-web/` with any static HTTP server (for example
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\web\serve.ps1`)
+and open the page. Do not open `index.html` over `file://`: the WASM module
+and the asset preloader require HTTP.
+
+### Requirements and Notes
+
+- A browser with **Wasm GC** support: Chrome/Edge 119+, Firefox 120+, or
+  Safari 18+.
+- The music starts only after the first user gesture (browser autoplay
+  policies); the demo retries playback on the first mouse move or key
+  press.
+- The asset preloader reads `asset-manifest.txt` next to `index.html`
+  (generated from `img/` and `sfx/`); failures are reported on the browser
+  console.
+- Esc quits the demo; a browser window does not generate close requests, so
+  `Screen.isCloseRequested()` always returns false on the web build.
+
 ## Running on Windows
 
 ### Requirements

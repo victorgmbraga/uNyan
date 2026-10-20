@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>uNyan</title>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: #10101a;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  canvas {
+    max-width: 98vw;
+    max-height: 92vh;
+    background: #4444ff;
+  }
+  #status {
+    font-family: system-ui,Segoe UI,Arial,sans-serif;
+    font-size: 14px;
+    color: #9db2ff;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+  <canvas id="uNyanScreen" width="1152" height="720"></canvas>
+  <div id="status">uNyan (WebAssembly): move the mouse to fly, press Z to drop
+    health, press Esc to quit.</div>
+
+  <script src="classes.wasm-runtime.js"></script>
+  <script>
+    (function () {
+      var status = document.getElementById("status");
+      TeaVM.wasmGC.load("classes.wasm")
+        .then(function (teavm) {
+          status.textContent = "uNyan (WebAssembly) loaded.";
+          teavm.exports.main([]);
+        })
+        .catch(function (error) {
+          var detail = error && (error.message || "" + error);
+          console.error(error);
+          status.textContent = "Failed to start the WebAssembly module: " + detail;
+        });
+    })();
+  </script>
+</body>
+</html>
