@@ -125,8 +125,13 @@ and deploys it with the official GitHub Pages actions.
 One-time setup if Pages was never enabled for this repository:
 
 1. Open **Settings → Pages** on GitHub.
-2. Under *Build and deployment*, set **Source** to **GitHub Actions**
-   (the workflow's `configure-pages` step also attempts this automatically).
+2. Under *Build and deployment*, set **Source** to **GitHub Actions**.
+
+This step has to be done in the UI: the workflow's `GITHUB_TOKEN` has no
+repository-administration permission, so it cannot create the Pages site
+(the API answers "Resource not accessible by integration"); once enabled,
+the workflow installs new versions automatically on every push. The first
+failed run can be restarted from the Actions tab (*Re-run failed jobs*).
 
 The site keeps working there exactly as locally: all page paths are
 relative, so the deployment lives under the repository subpath

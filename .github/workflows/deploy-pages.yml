@@ -72,10 +72,14 @@ jobs:
           # Debug extras are for local development only.
           rm -rf "$SITE/src" "$SITE/classes.wasm.map" "$SITE/classes.wasm.teadbg"
 
+      # The repository's GITHUB_TOKEN has no administration permission, so
+      # it cannot create the Pages site (the API answers "Resource not
+      # accessible by integration"). Enable the site once in
+      # GitHub -> Settings -> Pages -> Source: "GitHub Actions"; afterwards
+      # this step only reads site metadata and never blocks the deploy.
       - name: Configure Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
+        continue-on-error: true
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
