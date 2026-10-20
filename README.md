@@ -59,7 +59,7 @@ for:
 - `Background` and `NyanCat` have small copies under `web/src/` that connect
   keyboard observations through a lambda
   (`Observation(Object, EventMethod)`), because TeaVM restricts
-  `java.lang.reflect`.
+  `java.lang.reflect`. The web background also scales to fill the viewport.
 
 The engine side is a web flavor of uImpala: `web/src/main/java` contains a
 vendored, browser-compatible version of the engine core (no uOS
@@ -98,6 +98,8 @@ and the asset preloader require HTTP.
 
 - A browser with **Wasm GC** support: Chrome/Edge 119+, Firefox 120+, or
   Safari 18+.
+- The web scene fills the browser viewport and adapts when the window is
+  resized or the device changes orientation, keeping sprites in proportion.
 - The music starts only after the first user gesture (browser autoplay
   policies); the demo keeps retrying on every mouse move, click or key
   press until the playback actually starts.

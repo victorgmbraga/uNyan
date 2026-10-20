@@ -1,6 +1,7 @@
 package org.unbiquitous.uImpala.web.impl.io;
 
 import org.teavm.jso.canvas.CanvasRenderingContext2D;
+import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLCanvasElement;
 import org.teavm.jso.dom.html.HTMLDocument;
@@ -9,7 +10,7 @@ import org.unbiquitous.uImpala.engine.core.GameComponents;
 
 /**
  * Web implementation of the engine io Screen. Backed by a canvas in the host
- * page: open() resizes it, installs browser input listeners and feeds the
+ * page: open() fits it to the viewport, installs browser input listeners and feeds the
  * engine's MouseSource/KeyboardSource queues. Event types and key codes match
  * the LWJGL-based desktop backend so demo logic does not change.
  * @author Pimenta
@@ -62,6 +63,11 @@ public class WebScreen extends org.unbiquitous.uImpala.engine.io.Screen {
     canvas.setHeight(h);
     HTMLDocument.current().setTitle(t);
     renderer = (CanvasRenderingContext2D) canvas.getContext("2d").cast();
+    resizeToCanvas();
+    Window.current().addEventListener("resize", event -> {
+      if (open)
+        resizeToCanvas();
+    });
 
     registerInput();
     addMouseKeyboard();
@@ -89,6 +95,14 @@ public class WebScreen extends org.unbiquitous.uImpala.engine.io.Screen {
     this.height = height;
     canvas.setWidth(width);
     canvas.setHeight(height);
+  }
+
+  private void resizeToCanvas() {
+    TextRectangle rect = canvas.getBoundingClientRect();
+    int w = Math.max(1, (int) Math.round(rect.getRight() - rect.getLeft()));
+    int h = Math.max(1, (int) Math.round(rect.getBottom() - rect.getTop()));
+    if (w != width || h != height)
+      setSize(w, h);
   }
 
   public boolean isFullscreen() {

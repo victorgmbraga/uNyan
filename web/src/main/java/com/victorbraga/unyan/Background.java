@@ -15,9 +15,9 @@ import org.unbiquitous.uImpala.util.observer.Observation;
 import org.unbiquitous.uImpala.util.observer.Subject;
 
 /**
- * Web copy of the desktop demo class (same logic). The only difference: the
- * keyboard observation uses the lambda-based constructor because TeaVM wasm
- * builds cannot dispatch methods by name with java.lang.reflect.
+ * Web background fills the responsive screen. Keyboard observation uses the
+ * lambda-based constructor because TeaVM wasm builds cannot dispatch methods
+ * by name with java.lang.reflect.
  */
 public class Background extends GameObject {
 
@@ -44,7 +44,9 @@ public class Background extends GameObject {
   protected void render(GameRenderers arg0) {
     arg0.put(0, new Runnable(){
       public void run() {
-        bg.render(screen, 0.0f, 0.0f, Corner.TOP_LEFT);
+        bg.render(screen, 0.0f, 0.0f, Corner.TOP_LEFT, 1.0f, 0.0f,
+            (float) screen.getWidth() / bg.getWidth(),
+            (float) screen.getHeight() / bg.getHeight());
       }
     });
   }

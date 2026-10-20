@@ -6,23 +6,30 @@
 <title>uNyan</title>
 <style>
   html, body {
+    width: 100%;
     height: 100%;
     margin: 0;
+    overflow: hidden;
     background: #10101a;
   }
   body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    height: 100vh;
+    height: 100dvh;
   }
   canvas {
-    max-width: 98vw;
-    max-height: 92vh;
+    display: block;
+    width: 100%;
+    height: 100%;
     background: #4444ff;
   }
   #status {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: 8px 12px;
+    background: #10101acc;
+    pointer-events: none;
     font-family: system-ui,Segoe UI,Arial,sans-serif;
     font-size: 14px;
     color: #9db2ff;
@@ -32,7 +39,7 @@
 </head>
 <body>
   <canvas id="uNyanScreen" width="1152" height="720"></canvas>
-  <div id="status">uNyan (WebAssembly): move the mouse to fly, press Z to drop
+  <div id="status" role="status">uNyan (WebAssembly): move the mouse to fly, press Z to drop
     health, press Esc to quit. The music starts after the first mouse move or
     key press (browser autoplay policy).</div>
 
@@ -44,6 +51,7 @@
         .then(function (teavm) {
           status.textContent = "uNyan (WebAssembly) loaded.";
           teavm.exports.main([]);
+          status.hidden = true;
         })
         .catch(function (error) {
           var detail = error && (error.message || "" + error);
