@@ -1,5 +1,6 @@
 package org.unbiquitous.uImpala.web.impl.io;
 
+import org.teavm.jso.JSBody;
 import org.teavm.jso.canvas.CanvasRenderingContext2D;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.events.MouseEvent;
@@ -63,6 +64,7 @@ public class WebScreen extends org.unbiquitous.uImpala.engine.io.Screen {
     canvas.setHeight(h);
     HTMLDocument.current().setTitle(t);
     renderer = (CanvasRenderingContext2D) canvas.getContext("2d").cast();
+    useNearestNeighbor(renderer);
     resizeToCanvas();
     Window.current().addEventListener("resize", event -> {
       if (open)
@@ -95,7 +97,13 @@ public class WebScreen extends org.unbiquitous.uImpala.engine.io.Screen {
     this.height = height;
     canvas.setWidth(width);
     canvas.setHeight(height);
+    // Resizing a canvas resets its context state, including image smoothing.
+    if (renderer != null)
+      useNearestNeighbor(renderer);
   }
+
+  @JSBody(params = {"renderer"}, script = "renderer.imageSmoothingEnabled = false;")
+  private static native void useNearestNeighbor(CanvasRenderingContext2D renderer);
 
   private void resizeToCanvas() {
     TextRectangle rect = canvas.getBoundingClientRect();

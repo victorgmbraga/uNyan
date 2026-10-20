@@ -100,6 +100,9 @@ and the asset preloader require HTTP.
   Safari 18+.
 - The web scene fills the browser viewport and adapts when the window is
   resized or the device changes orientation, keeping sprites in proportion.
+- Canvas rendering uses nearest-neighbor scaling to keep pixel art sharp,
+  including the stars at 5× their original resolution. The solid background
+  uses a 1×1 texture stretched to fill the scene.
 - The music starts only after the first user gesture (browser autoplay
   policies); the demo keeps retrying on every mouse move, click or key
   press until the playback actually starts.

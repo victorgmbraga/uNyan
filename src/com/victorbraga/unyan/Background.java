@@ -37,7 +37,9 @@ public class Background extends GameObject {
 	protected void render(GameRenderers arg0) {
 		arg0.put(0, new Runnable(){
 			public void run() {
-				bg.render(screen, 0.0f, 0.0f, Corner.TOP_LEFT);
+				bg.render(screen, 0.0f, 0.0f, Corner.TOP_LEFT, 1.0f, 0.0f,
+						(float) screen.getWidth() / bg.getWidth(),
+						(float) screen.getHeight() / bg.getHeight());
 			}
 		});
 	}
