@@ -110,6 +110,30 @@ and the asset preloader require HTTP.
 - Esc quits the demo; a browser window does not generate close requests, so
   `Screen.isCloseRequested()` always returns false on the web build.
 
+### Publishing on GitHub Pages
+
+The repository contains a GitHub Actions workflow
+([`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml))
+that publishes this wasm build to
+<https://victorgmbraga.github.io/uNyan/>. On every push to `master` (or via
+the workflow's *Run workflow* button) it compiles the TeaVM module on a
+Linux runner, assembles the same site as `web/run.ps1` (host page, wasm
+module + runtime loader, `img/`, `sfx/` and the generated
+`asset-manifest.txt`, skipping the demo screenshots and adding `.nojekyll`)
+and deploys it with the official GitHub Pages actions.
+
+One-time setup if Pages was never enabled for this repository:
+
+1. Open **Settings → Pages** on GitHub.
+2. Under *Build and deployment*, set **Source** to **GitHub Actions**
+   (the workflow's `configure-pages` step also attempts this automatically).
+
+The site keeps working there exactly as locally: all page paths are
+relative, so the deployment lives under the repository subpath
+(`/uNyan/`), and the same browser requirements from the notes above apply.
+Note that GitHub Pages is free for public repositories; private
+repositories need a GitHub Pro subscription to use Pages.
+
 ## Running on Windows
 
 ### Requirements
