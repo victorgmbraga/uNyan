@@ -5,11 +5,15 @@ on:
     branches: [master]
   workflow_dispatch:
 
-# Grant the workflow the permissions Pages deployments need.
+# Grant the workflow the permissions Pages deployments need. The
+# "actions: write" scope lets the build job delete stale "github-pages"
+# artifacts left behind by earlier attempts of the same run (deploy-pages
+# fails when more than one artifact shares the name).
 permissions:
   contents: read
   pages: write
   id-token: write
+  actions: write
 
 concurrency:
   group: github-pages
@@ -28,6 +32,21 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: maven
+
+      # "Re-run failed jobs" keeps the artifacts of earlier attempts attached
+      # to the run, and uploading them again creates a second artifact with
+      # the same name, which breaks actions/deploy-pages. Remove duplicates
+      # before uploading a fresh one.
+      - name: Drop stale "github-pages" artifacts from earlier attempts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ARTIFACT_IDS=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
+            --jq '.artifacts[] | select(.name == "github-pages") | .id')
+          for id in $ARTIFACT_IDS; do
+            echo "Removing stale artifact $id"
+            gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$id"
+          done
 
       # Compiles the same web module used locally by web/run.ps1: the TeaVM
       # plugin writes classes.wasm (and its runtime loader) into
