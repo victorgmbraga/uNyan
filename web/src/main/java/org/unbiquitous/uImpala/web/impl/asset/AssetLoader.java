@@ -132,7 +132,8 @@ public final class AssetLoader {
 
   private void audioDone(String path, HTMLAudioElement audio) {
     if (audio.getReadyState() < HTMLAudioElement.HAVE_CURRENT_DATA)
-      BrowserConsole.error("uNyan: audio asset failed to load: " + path);
+      BrowserConsole.error("uNyan: audio asset failed to load or decode: " + path
+          + " (the browser may not support this format, e.g. OGG in Safari)");
     assetLoaded();
   }
 

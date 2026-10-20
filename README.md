@@ -99,8 +99,11 @@ and the asset preloader require HTTP.
 - A browser with **Wasm GC** support: Chrome/Edge 119+, Firefox 120+, or
   Safari 18+.
 - The music starts only after the first user gesture (browser autoplay
-  policies); the demo retries playback on the first mouse move or key
-  press.
+  policies); the demo keeps retrying on every mouse move, click or key
+  press until the playback actually starts.
+- OGG decodes on Chrome, Edge and Firefox; Safari does not decode OGG, so
+  the music stays silent there (check the browser console for the loader
+  warnings).
 - The asset preloader reads `asset-manifest.txt` next to `index.html`
   (generated from `img/` and `sfx/`); failures are reported on the browser
   console.

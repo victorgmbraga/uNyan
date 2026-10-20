@@ -65,7 +65,8 @@ New-Item -ItemType Directory -Path $sfxDir -Force | Out-Null
 
 $assets = ''
 foreach ($file in Get-ChildItem (Join-Path $root 'img') -File) {
-    if ($file.Name -like '*-demo*') { continue } # screenshots are not engine assets
+    # screenshots (demo/smoke images) are documentation, not engine assets
+    if ($file.Name -like '*-demo*' -or $file.Name -like '*-smoke*') { continue }
     Copy-Item $file.FullName (Join-Path $imgDir $file.Name) -Force
     $assets += "img img/$($file.Name)`n"
 }

@@ -1,6 +1,6 @@
 package org.unbiquitous.uImpala.web.impl.asset;
 
-import org.teavm.jso.browser.Window;
+import org.teavm.jso.JSBody;
 import org.teavm.jso.dom.events.Event;
 import org.teavm.jso.dom.events.EventListener;
 import org.teavm.jso.dom.html.HTMLAudioElement;
@@ -12,8 +12,11 @@ import org.unbiquitous.uImpala.engine.io.Speaker;
  * HTMLAudioElement. Volume/loop configuration mirrors the engine API.
  *
  * Browsers block playback started without user interaction (autoplay
- * policy), so a looping music that fails to start is retried on the first
- * user gesture (any mouse move/click or key press).
+ * policy), so a looping music that fails to start is retried on user
+ * gestures (any mouse move/click or key press) until it actually plays.
+ *
+ * Note: which formats decode varies per browser; Chrome, Edge and Firefox
+ * play OGG files, Safari does not.
  * @author Pimenta
  *
  */
@@ -32,8 +35,8 @@ public class WebAudio implements org.unbiquitous.uImpala.engine.asset.Audio {
     this.loop = loop;
     setVolume(volume);
     element.setLoop(loop);
-    element.play();
-    retryOnUserGesture();
+    tryPlay();
+    armGestureRetry();
     return new AudioPlayback(element);
   }
 
@@ -42,20 +45,38 @@ public class WebAudio implements org.unbiquitous.uImpala.engine.asset.Audio {
     element.setVolume(this.volume);
   }
 
+  private void tryPlay() {
+    if (element.isPaused())
+      quietPlay(element);
+  }
+
   /**
-   * Registers a one-shot page gesture listener that restarts the playback if
-   * the browser blocked it (element paused while a playback was requested).
+   * Browsers block .play() without a user gesture and return a rejected
+   * promise; this swallows the rejection so it does not pollute the console
+   * (the gesture retry below handles the real start).
    */
-  private void retryOnUserGesture() {
+  @JSBody(params = "element", script = ""
+      + "try { var p = element.play(); if (p && p.catch) p.catch(function (e) {}); }"
+      + " catch (e) {}")
+  private static native void quietPlay(HTMLAudioElement element);
+
+  /**
+   * Registers page gesture listeners that (re)start the playback whenever the
+   * browser blocked the initial attempt. They are removed once the playback
+   * actually starts, but stay armed while the condition is not met (for
+   * example, when the first gesture happens before the audio finishes
+   * buffering).
+   */
+  private void armGestureRetry() {
     EventListener<Event> listener = new EventListener<Event>() {
       public void handleEvent(Event event) {
         if (element.isPaused() && element.getReadyState() >= HTMLAudioElement.HAVE_CURRENT_DATA) {
           element.setLoop(loop);
           element.setVolume(volume);
-          element.play();
+          quietPlay(element);
+          for (String gesture : GESTURE_EVENTS)
+            HTMLDocument.current().removeEventListener(gesture, this, false);
         }
-        for (String gesture : GESTURE_EVENTS)
-          HTMLDocument.current().removeEventListener(gesture, this, false);
       }
     };
     for (String gesture : GESTURE_EVENTS)
